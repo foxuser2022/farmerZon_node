@@ -15,7 +15,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        const { name, email, Phone, role, password, cpassword } = value;
+        const { name, email, Phone, registerAs, password, cpassword } = value;
 
 
         if (password !== cpassword) {
@@ -38,7 +38,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             name,
             email,
             Phone,
-            role,
+            registerAs,
             password: hashedPassword,
         });
 
@@ -57,7 +57,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
                 name: user.name,
                 email: user.email,
                 Phone: user.Phone,
-                role: user.role
+                registerAs: user.role
             }
         });
     } catch (error) {
@@ -74,13 +74,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        const { email, password } = req.body;
+        const { email, password, loginAs } = value
 
 
         // Find user
         const user = await Users.findOne({ email });
         if (!user) {
             res.status(400).json({ message: "Invalid credentials" });
+            return;
+        }
+        if (user.role != loginAs) {
+            res.status(400).json({ message: "failed to login" });
             return;
         }
 
@@ -99,15 +103,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         );
 
         res.status(200).json({
-            message: "Login successful",
+            message: "You have logged in successfully.",
             token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
         });
+
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: "Server error" });
