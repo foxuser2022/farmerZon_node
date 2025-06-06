@@ -1,8 +1,7 @@
-import mongoose, { Document, Model } from "mongoose";
-import { IUser } from "src/Interfaces/Iuser.Interface";
+import mongoose, { Model } from "mongoose";
+import { IUser } from "../interfaces/IUser.interface";
 
-
-
+// User schema
 const userSchema = new mongoose.Schema<IUser>(
     {
         name: { type: String, required: true },
@@ -18,7 +17,7 @@ const userSchema = new mongoose.Schema<IUser>(
     { timestamps: true }
 );
 
-
+// User model
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 
 export default User;

@@ -1,10 +1,8 @@
-import { IUser } from './../Interfaces/Iuser.Interface';
 import { Request, Response } from "express";
-
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/Users.schema";
-
+import { IUser } from "../interfaces/IUser.interface";
 import { registerSchema, loginSchema } from "../validations/auth.validation";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
