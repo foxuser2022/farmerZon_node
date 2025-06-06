@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/Users.schema";
+import Users from "../models/Users.schema";
 import { IUser } from "../interfaces/IUser.interface";
 import { registerSchema } from "../validations/auth/register.validation";
 import { loginSchema } from "../validations/auth/login.validation";
@@ -9,17 +9,22 @@ import { loginSchema } from "../validations/auth/login.validation";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { error } = registerSchema.validate(req.body);
+        const { error, value } = registerSchema.validate(req.body);
         if (error) {
             res.status(400).json({ message: error.details[0].message });
             return;
         }
 
-        const { name, email, password } = req.body;
+        const { name, email, Phone, role, password, cpassword } = value;
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
+
+        if (password !== cpassword) {
+            res.status(400).json({ message: "Passwords do not match" });
+            return;
+        }
+
+        const isUser = await Users.findOne({ email });
+        if (isUser) {
             res.status(400).json({ message: "User already exists" });
             return;
         }
@@ -29,9 +34,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create new user
-        const user: IUser = await User.create({
+        const user: IUser = await Users.create({
             name,
             email,
+            Phone,
+            role,
             password: hashedPassword,
         });
 
@@ -49,6 +56,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                Phone: user.Phone,
                 role: user.role
             }
         });
@@ -60,7 +68,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { error } = loginSchema.validate(req.body);
+        const { error, value } = loginSchema.validate(req.body);
         if (error) {
             res.status(400).json({ message: error.details[0].message });
             return;
@@ -68,8 +76,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         const { email, password } = req.body;
 
+
         // Find user
-        const user = await User.findOne({ email });
+        const user = await Users.findOne({ email });
         if (!user) {
             res.status(400).json({ message: "Invalid credentials" });
             return;
