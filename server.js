@@ -24,7 +24,7 @@ app.use(
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", require("./routes/auth.router"));
-app.use("/api/users", require("./routes/users.router"));
+
 
 app.listen(PORT, () => {
   console.log(`Farmerzon Api:  http://localhost:${PORT}`);
