@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db';
-import authRouter from './routes/auth.router';
+import routes from './routes';
 
 // Load environment variables first
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -40,8 +40,8 @@ app.use(
 // Static files
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Routes
-app.use("/api/auth", authRouter);
+// API Routes
+app.use("/api", routes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: Function) => {
