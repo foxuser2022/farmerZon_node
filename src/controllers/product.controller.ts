@@ -15,13 +15,14 @@ export const addProduct = async (
       return;
     }
     const { name, description, price, quantity, category, image } = req.body;
+    const imageUrl = image && image.trim() !== "" ? image : "https://static.vecteezy.com/system/resources/previews/017/603/114/non_2x/farm-products-round-design-template-thin-line-icon-concept-vector.jpg";
     const product = new Product({
       name,
       description,
       price,
       quantity,
       category,
-      image,
+      image: imageUrl,
       seller: req.user.userId,
     });
     await product.save();
