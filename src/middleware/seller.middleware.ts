@@ -12,7 +12,7 @@ declare global {
 }
 
 // Verify JWT token
-const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -20,25 +20,25 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        req.user = decoded;
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        // Attach full user info from DB
+        const user = await Users.findById(decoded.userId);
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid token: user not found.' });
+        }
+        req.user = { userId: user._id, role: user.role, name: user.name, email: user.email };
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Invalid token.' });
+        return res.status(401).json({ message: 'Invalid token.' });
     }
 };
 
 // Verify Seller token
 export const verifySeller = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        await verifyToken(req, res, async () => {
-            const user = await Users.findById(req.user.userId);
-            if (!user || user.role !== 'seller') {
-                return res.status(403).json({ message: 'Access denied. Seller role required.' });
-            }
-            next();
-        });
-    } catch (error) {
-        res.status(401).json({ message: 'Invalid token.' });
-    }
+    await verifyToken(req, res, () => {
+        if (!req.user || req.user.role !== 'seller') {
+            return res.status(403).json({ message: 'Access denied. Seller role required.' });
+        }
+        next();
+    });
 }; 
