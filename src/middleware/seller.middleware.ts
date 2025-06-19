@@ -37,7 +37,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 export const verifySeller = async (req: Request, res: Response, next: NextFunction) => {
     await verifyToken(req, res, () => {
         if (!req.user || req.user.role !== 'seller') {
-            return res.status(403).json({ message: 'Access denied. Seller role required.' });
+            return res.status(403).json({ message: 'Access denied. Seller account required.' });
         }
         next();
     });

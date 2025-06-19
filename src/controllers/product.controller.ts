@@ -11,7 +11,7 @@ export const addProduct = async (
   try {
     // Check if user is seller
     if (!req.user || req.user.role !== "seller") {
-      res.status(403).json({ message: "Access denied. Seller role required." });
+      res.status(403).json({ message: "Access denied. Seller account is required." });
       return;
     }
     const { name, description, price, quantity, category, image } = req.body;
@@ -38,7 +38,7 @@ export const getSellerProducts = async (
 ): Promise<void> => {
   try {
     if (!req.user || req.user.role !== "seller") {
-      res.status(403).json({ message: "Access denied. Seller role required." });
+      res.status(403).json({ message: "Access denied. Seller account is required." });
       return;
     }
     const products = await Product.find({ seller: req.user.userId });
