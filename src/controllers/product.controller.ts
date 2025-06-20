@@ -63,7 +63,7 @@ export const getSellerProducts = async (
       res.status(403).json({ message: "Access denied. Seller account is required." });
       return;
     }
-    const products = await Product.find({ seller: req.user.userId });
+    const products = await Product.find({ seller: req.user.userId }).populate('seller', 'name');
     res.status(200).json({ products });
   } catch (error) {
     console.error("Get products error:", error);
