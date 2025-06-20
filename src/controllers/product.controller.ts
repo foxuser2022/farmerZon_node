@@ -103,11 +103,12 @@ export const buyProductList = async (
 
     // Get total count for pagination
     const total = await Product.countDocuments(filter);
-    // Get products with pagination
+    // Get products with pagination and populate seller name
     const products = await Product.find(filter)
       .skip(skip)
       .limit(limitNum)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate('seller', 'name');
 
     res.status(200).json({
       products,
