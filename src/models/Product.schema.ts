@@ -26,7 +26,7 @@ const productSchema = new Schema(
         lng: { type: String, required: true },
       },
     },
-    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    category: { type: String, required: true },
     image: {
       type: String,
       default:

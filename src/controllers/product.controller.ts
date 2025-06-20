@@ -29,7 +29,7 @@ export const addProduct = async (
       res.status(400).json({ message: "Incomplete location details." });
       return;
     }
-    const imageUrl = image && image.trim() !== "" ? image : "https://static.vecteezy.com/system/resources/previews/017/603/114/non_2x/farm-products-round-design-template-thin-line-icon-concept-vector.jpg";
+    const imageUrl = image && image.trim() !== "" ? image : "https://img2.tradewheel.com/uploads/blog/64eda10490638-attachment.jpg.webp";
     const categoryDoc: ICategory | null = await Category.findOne({ name: category });
     if (!categoryDoc) {
       res.status(404).json({ message: "Unknown category" });
@@ -42,7 +42,7 @@ export const addProduct = async (
       quantity,
       unit,
       location,
-      category: categoryDoc.id,
+      category: categoryDoc.name,
       image: imageUrl,
       seller: req.user.userId,
     });
