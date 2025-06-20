@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Users from "../models/Users.schema";
 import Product from "../models/Product.schema";
+import Category from "../models/Category.schema";
 
 export const addProduct = async (
   req: Request,
@@ -46,6 +47,23 @@ export const getSellerProducts = async (
     res.status(200).json({ products });
   } catch (error) {
     console.error("Get products error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getCategories = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user || req.user.role !== "seller") {
+      res.status(403).json({ message: "Access denied. Seller account is required." });
+      return;
+    }
+    const categories = await Category.find({});
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.error("Get categories error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
