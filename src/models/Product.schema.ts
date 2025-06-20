@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema, Document } from "mongoose";
+import { IProduct, ILocation } from "../interfaces/IProduct.interface";
 
 export enum Unit {
   KG = "kg",
@@ -7,28 +8,6 @@ export enum Unit {
   GRAM = "gram",
   QUINTAL = "quintal",
   TON = "ton",
-}
-
-export interface ILocation {
-  city: string;
-  state: string;
-  geolocation: {
-    lat: number;
-    lng: number;
-  };
-  address: string;
-}
-
-export interface IProduct extends Document {
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  unit: Unit;
-  location: ILocation;
-  category: mongoose.Schema.Types.ObjectId;
-  image?: string;
-  seller: mongoose.Schema.Types.ObjectId;
 }
 
 const productSchema = new Schema(
