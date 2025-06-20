@@ -76,14 +76,50 @@ export const getCategories = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user || req.user.role !== "seller") {
-      res.status(403).json({ message: "Access denied. Seller account is required." });
-      return;
-    }
     const categories = await Category.find({});
     res.status(200).json({ categories });
   } catch (error) {
     console.error("Get categories error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const buyProductList = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    // Get query params
+    const { category = "all", page = "1", limit = "10" } = req.query;
+    const pageNum = parseInt(page as string, 10) || 1;
+    const limitNum = parseInt(limit as string, 10) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build filter
+    let filter: any = {};
+    if (category && category !== "all") {
+      filter.category = category;
+    }
+
+    // Get total count for pagination
+    const total = await Product.countDocuments(filter);
+    // Get products with pagination
+    const products = await Product.find(filter)
+      .skip(skip)
+      .limit(limitNum)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      products,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error) {
+    console.error("Get product list error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
