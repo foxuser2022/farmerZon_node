@@ -5,6 +5,7 @@ import Users from "../models/Users.schema";
 import Product from "../models/Product.schema";
 import Category, { ICategory } from "../models/Category.schema";
 import { Unit } from "../models/Product.schema";
+import Order from '../models/Order.schema';
 
 export const addProduct = async (
   req: Request,
@@ -122,5 +123,32 @@ export const buyProductList = async (
   } catch (error) {
     console.error("Get product list error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const placeOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?._id;
+    const { items, total, paymentMethod } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      res.status(400).json({ message: 'No items in order.' });
+      return;
+    }
+    if (!paymentMethod) {
+      res.status(400).json({ message: 'Payment method required.' });
+      return;
+    }
+    const order = await Order.create({
+      user: userId,
+      items,
+      total,
+      paymentMethod,
+    });
+    res.status(201).json({ message: 'Order placed successfully', order });
+    return;
+  } catch (error) {
+    console.error('Order placement error:', error);
+    res.status(500).json({ message: 'Failed to place order' });
+    return;
   }
 };
