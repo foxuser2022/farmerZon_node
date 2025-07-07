@@ -3,6 +3,7 @@ const router: Router = express.Router();
 import { addProduct, buyProductList, getCategories, getSellerProducts, placeOrder } from "../controllers/product.controller";
 import { verifySeller } from "../middleware/seller.middleware";
 import { verifyBuyer } from "../middleware/buyer.middleware";
+ 
 ;
 
 router.post("/", verifySeller, addProduct);

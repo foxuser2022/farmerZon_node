@@ -128,7 +128,10 @@ export const buyProductList = async (
 
 export const placeOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?._id;
+    console.log("---------------place --order       >>>>")
+
+    const userId = req.user.userId
+
     const { items, total, paymentMethod } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
       res.status(400).json({ message: 'No items in order.' });
