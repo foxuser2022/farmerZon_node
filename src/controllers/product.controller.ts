@@ -5,7 +5,7 @@ import Users from "../models/Users.schema";
 import Product from "../models/Product.schema";
 import Category, { ICategory } from "../models/Category.schema";
 import { Unit } from "../models/Product.schema";
-import Order from '../models/Order.schema';
+import Order from "../models/Order.schema";
 
 export const addProduct = async (
   req: Request,
@@ -13,12 +13,31 @@ export const addProduct = async (
 ): Promise<void> => {
   try {
     if (!req.user || req.user.role !== "seller") {
-      res.status(403).json({ message: "Access denied. Seller account is required." });
+      res
+        .status(403)
+        .json({ message: "Access denied. Seller account is required." });
       return;
     }
-    const { name, description, price, quantity, category, image, unit, location } = req.body;
+    const {
+      name,
+      description,
+      price,
+      quantity,
+      category,
+      image,
+      unit,
+      location,
+    } = req.body;
     // Validate required fields
-    if (!name || !description || !price || !quantity || !category || !unit || !location) {
+    if (
+      !name ||
+      !description ||
+      !price ||
+      !quantity ||
+      !category ||
+      !unit ||
+      !location
+    ) {
       res.status(400).json({ message: "Missing required fields." });
       return;
     }
@@ -26,12 +45,24 @@ export const addProduct = async (
       res.status(400).json({ message: "Invalid unit." });
       return;
     }
-    if (!location.city || !location.state || !location.address || !location.geolocation || !location.geolocation.lat || !location.geolocation.lng) {
+    if (
+      !location.city ||
+      !location.state ||
+      !location.address ||
+      !location.geolocation ||
+      !location.geolocation.lat ||
+      !location.geolocation.lng
+    ) {
       res.status(400).json({ message: "Incomplete location details." });
       return;
     }
-    const imageUrl = image && image.trim() !== "" ? image : "https://img2.tradewheel.com/uploads/blog/64eda10490638-attachment.jpg.webp";
-    const categoryDoc: ICategory | null = await Category.findOne({ name: category });
+    const imageUrl =
+      image && image.trim() !== ""
+        ? image
+        : "https://img2.tradewheel.com/uploads/blog/64eda10490638-attachment.jpg.webp";
+    const categoryDoc: ICategory | null = await Category.findOne({
+      name: category,
+    });
     if (!categoryDoc) {
       res.status(404).json({ message: "Unknown category" });
       return;
@@ -61,10 +92,15 @@ export const getSellerProducts = async (
 ): Promise<void> => {
   try {
     if (!req.user || req.user.role !== "seller") {
-      res.status(403).json({ message: "Access denied. Seller account is required." });
+      res
+        .status(403)
+        .json({ message: "Access denied. Seller account is required." });
       return;
     }
-    const products = await Product.find({ seller: req.user.userId }).populate('seller', 'name');
+    const products = await Product.find({ seller: req.user.userId }).populate(
+      "seller",
+      "name"
+    );
     res.status(200).json({ products });
   } catch (error) {
     console.error("Get products error:", error);
@@ -109,7 +145,7 @@ export const buyProductList = async (
       .skip(skip)
       .limit(limitNum)
       .sort({ createdAt: -1 })
-      .populate('seller', 'name');
+      .populate("seller", "name");
 
     res.status(200).json({
       products,
@@ -126,52 +162,89 @@ export const buyProductList = async (
   }
 };
 
-export const placeOrder = async (req: Request, res: Response): Promise<void> => {
+export const placeOrder = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    console.log("---------------place --order       >>>>")
-
-    const userId = req.user.userId
-
+    console.log("---------------place --order       >>>>");
+    const userId = req.user.userId;
     const { items, total, paymentMethod } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
-      res.status(400).json({ message: 'No items in order.' });
+      res.status(400).json({ message: "No items in order." });
       return;
     }
     if (!paymentMethod) {
-      res.status(400).json({ message: 'Payment method required.' });
+      res.status(400).json({ message: "Payment method required." });
       return;
     }
+    // Enrich items with units, sellerName, sellerPhone
+    const enrichedItems = await Promise.all(
+      items.map(async (item: any) => {
+        const product = await Product.findById(item._id).populate("seller");
+        if (!product) throw new Error("Product not found");
+        let sellerName = "";
+        let sellerPhone = "";
+        let sellerId = '';
+
+        if (
+          product.seller &&
+          typeof product.seller === "object" &&
+          "name" in product.seller
+        ) {
+          const seller = product.seller as any;
+          sellerName = String(seller.name);
+          sellerPhone = seller.Phone && String(seller.Phone).trim() !== "" ? String(seller.Phone) : "N/A";
+          sellerId = seller._id ? String(seller._id) : '';
+        } else {
+          sellerId = '';
+        }
+        return {
+          _id: item._id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+          units: product.unit,
+          sellerName,
+          sellerPhone,
+          sellerId,
+        };
+      })
+    );
     const order = await Order.create({
       user: userId,
-      items,
+      items: enrichedItems,
       total,
+      sellerName: enrichedItems[0]?.sellerName || '',
+      sellerPhone: enrichedItems[0]?.sellerPhone || '',
+      sellerId: enrichedItems[0]?.sellerId || '',
       paymentMethod,
+      orderStatus: "Pending",
     });
-    res.status(201).json({ message: 'Order placed successfully', order });
+    res.status(201).json({ message: "Order placed successfully", order });
     return;
   } catch (error) {
-    console.error('Order placement error:', error);
-    res.status(500).json({ message: 'Failed to place order' });
+    console.error("Order placement error:", error);
+    res.status(500).json({ message: "Failed to place order" });
     return;
   }
 };
+
 export const getOrders = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log("---------------place --order       >>>>")
-
-    const userId = req.user.userId
-
-
+    const userId = req.user.userId;
     if (!userId) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
       return;
     }
-    const orders = await Order.find({})
-    res.status(201).json({ message: 'Order placed successfully', orders });
+    // Only return orders for this user, most recent first
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+    res.status(200).json({ orders });
     return;
   } catch (error) {
-    console.error('Order placement error:', error);
-    res.status(500).json({ message: 'Failed to place order' });
+    console.error("Order fetch error:", error);
+    res.status(500).json({ message: "Failed to fetch orders" });
     return;
   }
 };

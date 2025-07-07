@@ -6,13 +6,21 @@ export interface IOrderItem {
   price: number;
   quantity: number;
   image?: string;
+  units: string; // e.g., 'kg', 'piece', etc.
+  sellerName: string;
+  sellerPhone: string;
+  sellerId: string;
 }
 
 export interface IOrder extends Document {
   user: mongoose.Types.ObjectId;
   items: IOrderItem[];
   total: number;
+  sellerName: string;
+  sellerPhone: string;
+  sellerId: string;
   paymentMethod: string;
+  orderStatus: string;
   createdAt: Date;
 }
 
@@ -22,13 +30,21 @@ const OrderItemSchema = new Schema<IOrderItem>({
   price: { type: Number, required: true },
   quantity: { type: Number, required: true },
   image: String,
+  units: { type: String, required: true },
+  sellerName: { type: String, required: true },
+  sellerPhone: { type: String, required: true },
+  sellerId: { type: String, required: true },
 });
 
 const OrderSchema = new Schema<IOrder>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   items: { type: [OrderItemSchema], required: true },
   total: { type: Number, required: true },
+  sellerName: { type: String, required: true },
+  sellerPhone: { type: String, required: true },
+  sellerId: { type: String, required: true },
   paymentMethod: { type: String, required: true },
+  orderStatus: { type: String, default: 'Pending', required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
