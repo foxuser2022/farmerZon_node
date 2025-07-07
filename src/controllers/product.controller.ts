@@ -178,51 +178,53 @@ export const placeOrder = async (
       res.status(400).json({ message: "Payment method required." });
       return;
     }
-    // Enrich items with units, sellerName, sellerPhone
-    const enrichedItems = await Promise.all(
-      items.map(async (item: any) => {
-        const product = await Product.findById(item._id).populate("seller");
-        if (!product) throw new Error("Product not found");
-        let sellerName = "";
-        let sellerPhone = "";
-        let sellerId = '';
-
-        if (
-          product.seller &&
-          typeof product.seller === "object" &&
-          "name" in product.seller
-        ) {
-          const seller = product.seller as any;
-          sellerName = String(seller.name);
-          sellerPhone = seller.Phone && String(seller.Phone).trim() !== "" ? String(seller.Phone) : "N/A";
-          sellerId = seller._id ? String(seller._id) : '';
-        } else {
-          sellerId = '';
-        }
-        return {
-          _id: item._id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image,
-          units: product.unit,
-          sellerName,
-          sellerPhone,
-          sellerId,
-        };
-      })
-    );
-    const order = await Order.create({
-      user: userId,
-      items: enrichedItems,
-      total,
-      sellerName: enrichedItems[0]?.sellerName || '',
-      sellerPhone: enrichedItems[0]?.sellerPhone || '',
-      sellerId: enrichedItems[0]?.sellerId || '',
-      paymentMethod,
-      orderStatus: "Pending",
-    });
-    res.status(201).json({ message: "Order placed successfully", order });
+    // If multiple items, create separate orders for each
+    const createdOrders = [];
+    for (const item of items) {
+      const product = await Product.findById(item._id).populate("seller");
+      if (!product) {
+        res.status(404).json({ message: `Product not found for item ${item._id}` });
+        return;
+      }
+      let sellerName = "";
+      let sellerPhone = "";
+      let sellerId = '';
+      if (
+        product.seller &&
+        typeof product.seller === "object" &&
+        "name" in product.seller
+      ) {
+        const seller = product.seller as any;
+        sellerName = String(seller.name);
+        sellerPhone = seller.Phone && String(seller.Phone).trim() !== "" ? String(seller.Phone) : "N/A";
+        sellerId = seller._id ? String(seller._id) : '';
+      } else {
+        sellerId = '';
+      }
+      const enrichedItem = {
+        _id: item._id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        units: product.unit,
+        sellerName,
+        sellerPhone,
+        sellerId,
+      };
+      const order = await Order.create({
+        user: userId,
+        items: [enrichedItem],
+        total: item.price * item.quantity, // total for this item only
+        sellerName,
+        sellerPhone,
+        sellerId,
+        paymentMethod,
+        orderStatus: "Pending",
+      });
+      createdOrders.push(order);
+    }
+    res.status(201).json({ message: "Orders placed successfully", orders: createdOrders });
     return;
   } catch (error) {
     console.error("Order placement error:", error);
