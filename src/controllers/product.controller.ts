@@ -155,3 +155,23 @@ export const placeOrder = async (req: Request, res: Response): Promise<void> => 
     return;
   }
 };
+export const getOrders = async (req: Request, res: Response): Promise<void> => {
+  try {
+    console.log("---------------place --order       >>>>")
+
+    const userId = req.user.userId
+
+
+    if (!userId) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    const orders = await Order.find({})
+    res.status(201).json({ message: 'Order placed successfully', orders });
+    return;
+  } catch (error) {
+    console.error('Order placement error:', error);
+    res.status(500).json({ message: 'Failed to place order' });
+    return;
+  }
+};
