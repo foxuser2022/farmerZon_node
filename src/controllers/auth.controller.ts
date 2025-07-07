@@ -38,7 +38,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             name,
             email,
             Phone,
-            registerAs,
+            role: registerAs,
             password: hashedPassword,
         });
 
