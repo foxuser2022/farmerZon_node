@@ -13,16 +13,32 @@ const OrderItemSchema = new Schema({
 });
 
 const OrderSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   items: { type: [OrderItemSchema], required: true },
   total: { type: Number, required: true },
   sellerName: { type: String, required: true },
   sellerPhone: { type: String, required: true },
   sellerId: { type: String, required: true },
   paymentMethod: { type: String, required: true },
-  orderStatus: { type: String, default: 'Pending', required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+  orderStatus: {
+    type: String,
+    enum: [
+      'Pending',
+      'Confirmed',
+      'Shipped',
+      'Nearest',
+      'Delivered',
+      'Cancelled',
+      'Returned',
+      'Failed'
+    ],
+    default: 'Pending',
+    required: true
+  },
+  trackingNumber: { type: String },
+  estimatedDelivery: { type: Date },
+
+}, { timestamps: true });
 
 const Order = mongoose.model("Order", OrderSchema);
-export default Order; 
+export default Order;
