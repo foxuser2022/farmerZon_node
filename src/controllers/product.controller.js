@@ -224,9 +224,21 @@ export const getOrders = async (req, res) => {
       res.status(404).json({ message: "User not found" });
       return;
     }
+    // Pagination params
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
     // Only return orders for this user, most recent first
-    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
-    res.status(200).json({ orders });
+    const [orders, totalOrders] = await Promise.all([
+      Order.find({ user: userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Order.countDocuments({ user: userId })
+    ]);
+    const totalPages = Math.ceil(totalOrders / limit);
+    res.status(200).json({ orders, totalOrders, page, totalPages });
     return;
   } catch (error) {
     console.error("Order fetch error:", error);
