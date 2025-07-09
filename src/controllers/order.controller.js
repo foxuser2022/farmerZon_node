@@ -117,7 +117,7 @@ export const getTrackingInfo = async (req, res) => {
         .status(403)
         .json({ message: "Not authorized to view this order" });
     }
-    const tracking = await Tracking.findOne({ order: order._id });
+    const tracking = await Tracking.find({ order: order._id });
     if (!tracking) {
       return res.status(404).json({ message: "Tracking info not found" });
     }
