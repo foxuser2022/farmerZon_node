@@ -37,6 +37,9 @@ const OrderSchema = new Schema({
   },
   trackingNumber: { type: String },
   estimatedDelivery: { type: Date },
+  deliveryPerson: { type: String },
+  deliveryPhone: { type: String },
+  vehicleNumber: { type: String },
 
 }, { timestamps: true });
 

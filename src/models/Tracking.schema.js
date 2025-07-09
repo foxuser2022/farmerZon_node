@@ -20,6 +20,9 @@ const TrackingSchema = new Schema({
     required: true
   },
   note: { type: String },
+  deliveryPerson: { type: String },
+  deliveryPhone: { type: String },
+  vehicleNumber: { type: String },
   updatedAt: { type: Date, default: Date.now },
 });
 
