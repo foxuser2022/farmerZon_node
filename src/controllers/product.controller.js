@@ -153,13 +153,17 @@ export const placeOrder = async (req, res) => {
   try {
     console.log("---------------place --order       >>>>");
     const userId = req.user.userId;
-    const { items, total, paymentMethod } = req.body;
+    const { items, total, paymentMethod, address } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
       res.status(400).json({ message: "No items in order." });
       return;
     }
     if (!paymentMethod) {
       res.status(400).json({ message: "Payment method required." });
+      return;
+    }
+    if (!address || typeof address !== 'string' || address.trim() === '') {
+      res.status(400).json({ message: "Address is required." });
       return;
     }
     // If multiple items, create separate orders for each
@@ -204,6 +208,7 @@ export const placeOrder = async (req, res) => {
         sellerPhone,
         sellerId,
         paymentMethod,
+        address,
         orderStatus: "Pending",
       });
       createdOrders.push(order);

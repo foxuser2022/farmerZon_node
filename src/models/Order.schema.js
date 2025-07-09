@@ -20,6 +20,7 @@ const OrderSchema = new Schema({
   sellerPhone: { type: String, required: true },
   sellerId: { type: String, required: true },
   paymentMethod: { type: String, required: true },
+  address: { type: String, required: true },
   orderStatus: {
     type: String,
     enum: [
