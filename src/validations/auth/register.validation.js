@@ -7,6 +7,4 @@ export const registerSchema = Joi.object({
     registerAs: Joi.string().valid('seller', 'buyer').default('buyer').required(),
     password: Joi.string().min(6).required(),
     cpassword: Joi.string().min(6).required(),
-});
-
-
+}); 

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config()
 
-const db: string = process.env.MONGODB_URL || '';
+const db = process.env.MONGODB_URL || '';
 if (!db) {
   console.error('MONGODB_URL is not defined in environment variables');
   process.exit(1);
@@ -13,7 +13,7 @@ if (!db.startsWith('mongodb://') && !db.startsWith('mongodb+srv://')) {
   process.exit(1);
 }
 
-export const connectDB = async (): Promise<void> => {
+export const connectDB = async () => {
   try {
     await mongoose.connect(db);
     console.log('MongoDB Connected Successfully...');

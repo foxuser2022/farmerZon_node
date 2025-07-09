@@ -1,18 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import Users from '../models/Users.schema';
-
-// Extend Express Request type to include user
-declare global {
-    namespace Express {
-        interface Request {
-            user?: any;
-        }
-    }
-}
+import Users from '../models/Users.schema.js';
 
 // Verify JWT token
-const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -28,13 +18,13 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-// Verify Buyer token
-export const verifyBuyer = async (req: Request, res: Response, next: NextFunction) => {
+// Verify Admin token
+export const verifyAdmin = async (req, res, next) => {
     try {
         await verifyToken(req, res, async () => {
             const user = await Users.findById(req.user.userId);
-            if (!user || user.role !== 'buyer') {
-                return res.status(403).json({ message: 'Access denied. Buyer role required.' });
+            if (!user || user.role !== 'admin') {
+                return res.status(403).json({ message: 'Access denied. Admin role required.' });
             }
             next();
         });

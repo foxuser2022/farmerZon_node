@@ -1,30 +1,6 @@
-import mongoose, { Model, Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IOrderItem {
-  _id: string; // Product ID
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  units: string; // e.g., 'kg', 'piece', etc.
-  sellerName: string;
-  sellerPhone: string;
-  sellerId: string;
-}
-
-export interface IOrder extends Document {
-  user: mongoose.Types.ObjectId;
-  items: IOrderItem[];
-  total: number;
-  sellerName: string;
-  sellerPhone: string;
-  sellerId: string;
-  paymentMethod: string;
-  orderStatus: string;
-  createdAt: Date;
-}
-
-const OrderItemSchema = new Schema<IOrderItem>({
+const OrderItemSchema = new Schema({
   _id: { type: String, required: true }, // Product ID
   name: { type: String, required: true },
   price: { type: Number, required: true },
@@ -36,7 +12,7 @@ const OrderItemSchema = new Schema<IOrderItem>({
   sellerId: { type: String, required: true },
 });
 
-const OrderSchema = new Schema<IOrder>({
+const OrderSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   items: { type: [OrderItemSchema], required: true },
   total: { type: Number, required: true },
@@ -48,5 +24,5 @@ const OrderSchema = new Schema<IOrder>({
   createdAt: { type: Date, default: Date.now },
 });
 
-const Order: Model<IOrder> = mongoose.model<IOrder>("Order", OrderSchema);
+const Order = mongoose.model("Order", OrderSchema);
 export default Order; 

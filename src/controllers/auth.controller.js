@@ -1,13 +1,11 @@
-import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Users from "../models/Users.schema";
-import { IUser } from "../interfaces/IUser.interface";
-import { registerSchema } from "../validations/auth/register.validation";
-import { loginSchema } from "../validations/auth/login.validation";
+import Users from "../models/Users.schema.js";
+import { registerSchema } from "../validations/auth/register.validation.js";
+import { loginSchema } from "../validations/auth/login.validation.js";
 
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (req, res) => {
     try {
         const { error, value } = registerSchema.validate(req.body);
         if (error) {
@@ -34,7 +32,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create new user
-        const user: IUser = await Users.create({
+        const user = await Users.create({
             name,
             email,
             Phone,
@@ -66,7 +64,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req, res) => {
     try {
         const { error, value } = loginSchema.validate(req.body);
         if (error) {
@@ -111,4 +109,4 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         console.error('Login error:', error);
         res.status(500).json({ message: "Server error" });
     }
-};
+}; 

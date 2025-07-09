@@ -1,18 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import Users from '../models/Users.schema';
-
-// Extend Express Request type to include user
-declare global {
-    namespace Express {
-        interface Request {
-            user?: any;
-        }
-    }
-}
+import Users from '../models/Users.schema.js';
 
 // Verify JWT token
-const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -20,7 +10,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     try {
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
         // Attach full user info from DB
         const user = await Users.findById(decoded.userId);
         if (!user) {
@@ -34,7 +24,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 // Verify Seller token
-export const verifySeller = async (req: Request, res: Response, next: NextFunction) => {
+export const verifySeller = async (req, res, next) => {
     await verifyToken(req, res, () => {
         if (!req.user || req.user.role !== 'seller') {
             return res.status(403).json({ message: 'Access denied. Seller account required.' });
@@ -42,4 +32,3 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
         next();
     });
 }; 
- 

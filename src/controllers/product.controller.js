@@ -1,16 +1,12 @@
-import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Users from "../models/Users.schema";
-import Product from "../models/Product.schema";
-import Category, { ICategory } from "../models/Category.schema";
-import { Unit } from "../models/Product.schema";
-import Order from "../models/Order.schema";
+import Users from "../models/Users.schema.js";
+import Product from "../models/Product.schema.js";
+import Category from "../models/Category.schema.js";
+import { Unit } from "../models/Product.schema.js";
+import Order from "../models/Order.schema.js";
 
-export const addProduct = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const addProduct = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "seller") {
       res
@@ -60,7 +56,7 @@ export const addProduct = async (
       image && image.trim() !== ""
         ? image
         : "https://img2.tradewheel.com/uploads/blog/64eda10490638-attachment.jpg.webp";
-    const categoryDoc: ICategory | null = await Category.findOne({
+    const categoryDoc = await Category.findOne({
       name: category,
     });
     if (!categoryDoc) {
@@ -86,10 +82,7 @@ export const addProduct = async (
   }
 };
 
-export const getSellerProducts = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getSellerProducts = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "seller") {
       res
@@ -108,10 +101,7 @@ export const getSellerProducts = async (
   }
 };
 
-export const getCategories = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getCategories = async (req, res) => {
   try {
     const categories = await Category.find({});
     res.status(200).json({ categories });
@@ -121,19 +111,16 @@ export const getCategories = async (
   }
 };
 
-export const buyProductList = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const buyProductList = async (req, res) => {
   try {
     // Get query params
     const { category = "all", page = "1", limit = "10" } = req.query;
-    const pageNum = parseInt(page as string, 10) || 1;
-    const limitNum = parseInt(limit as string, 10) || 10;
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 10;
     const skip = (pageNum - 1) * limitNum;
 
     // Build filter
-    let filter: any = {};
+    let filter = {};
     if (category && category !== "all") {
       filter.category = category;
     }
@@ -162,10 +149,7 @@ export const buyProductList = async (
   }
 };
 
-export const placeOrder = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const placeOrder = async (req, res) => {
   try {
     console.log("---------------place --order       >>>>");
     const userId = req.user.userId;
@@ -194,7 +178,7 @@ export const placeOrder = async (
         typeof product.seller === "object" &&
         "name" in product.seller
       ) {
-        const seller = product.seller as any;
+        const seller = product.seller;
         sellerName = String(seller.name);
         sellerPhone = seller.Phone && String(seller.Phone).trim() !== "" ? String(seller.Phone) : "N/A";
         sellerId = seller._id ? String(seller._id) : '';
@@ -233,7 +217,7 @@ export const placeOrder = async (
   }
 };
 
-export const getOrders = async (req: Request, res: Response): Promise<void> => {
+export const getOrders = async (req, res) => {
   try {
     const userId = req.user.userId;
     if (!userId) {
@@ -249,4 +233,4 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Failed to fetch orders" });
     return;
   }
-};
+}; 

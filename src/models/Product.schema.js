@@ -1,14 +1,13 @@
-import mongoose, { Model, Schema, Document } from "mongoose";
-import { IProduct, ILocation } from "../interfaces/IProduct.interface";
+import mongoose, { Schema } from "mongoose";
 
-export enum Unit {
-  KG = "kg",
-  LITRE = "litre",
-  PIECE = "piece",
-  GRAM = "gram",
-  QUINTAL = "quintal",
-  TON = "ton",
-}
+export const Unit = {
+  KG: "kg",
+  LITRE: "litre",
+  PIECE: "piece",
+  GRAM: "gram",
+  QUINTAL: "quintal",
+  TON: "ton",
+};
 
 const productSchema = new Schema(
   {
@@ -37,9 +36,6 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-const Product: Model<IProduct> = mongoose.model<IProduct>(
-  "Product",
-  productSchema
-);
+const Product = mongoose.model("Product", productSchema);
 
-export default Product;
+export default Product; 

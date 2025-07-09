@@ -1,11 +1,15 @@
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { connectDB } from './config/db';
-import routes from './routes';
+import { connectDB } from './config/db.js';
+import routes from './routes/index.js';
+ 
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Load environment variables first
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Validate required environment variables
@@ -17,8 +21,8 @@ if (missingEnvVars.length > 0) {
     process.exit(1);
 }
 
-const app: Express = express();
-const PORT: string | number = process.env.PORT || 5000;
+const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Connect Database
 connectDB();
@@ -44,7 +48,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api", routes);
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: Function) => {
+app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Something went wrong!' });
 });

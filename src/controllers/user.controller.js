@@ -1,19 +1,15 @@
-import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Users from "../models/Users.schema";
+import Users from "../models/Users.schema.js";
 
-export const getUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getUser = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       res.status(401).json({ message: 'Access denied. No token provided.' });
       return;
     }
-    let decoded: any;
+    let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     } catch (error) {
@@ -30,4 +26,4 @@ export const getUser = async (
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
-};
+}; 
