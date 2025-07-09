@@ -11,8 +11,8 @@ router.post("/", verifyBuyer, placeOrder);
 router.get("/all", verifyBuyer, getOrders);
 router.get("/requests", verifySeller, getOrderRequests);
 
-router.post('/:orderId/status', verifySeller, updateOrderStatus); // update order status (with tracking if shipped)
-router.get('/:orderId/tracking', verifyBuyer, getTrackingInfo); // get tracking info for user
-router.post('/:orderId/tracking', verifySeller, updateTrackingStatus); // update tracking status/note
+router.post('/:orderId/status', verifySeller, updateOrderStatus);  
+router.get('/:orderId/tracking', verifyBuyer, getTrackingInfo);  
+router.post('/:orderId/tracking', verifySeller, updateTrackingStatus);  
 
 export default router; 

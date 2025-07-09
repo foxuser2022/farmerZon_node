@@ -5,17 +5,17 @@ const TrackingSchema = new Schema({
   order: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
   status: {
     type: String, enum: [
-      'pending',
-      'confirmed',
-      'shipped',
-      'processing',
-      'nearest-Store',
-      'in-your-area',
-      'at-doorstep',
-      'delivered',
-      'cancelled',
-      'returned',
-      'failed'
+      'Pending',
+      'Confirmed',
+      'Shipped',
+      'Processing',
+      'Nearest-Store',
+      'In-your-area',
+      'At-your-doorstep',
+      'Delivered',
+      'Cancelled',
+      'Returned',
+      'Failed'
     ],
     required: true
   },
