@@ -23,14 +23,14 @@ const OrderSchema = new Schema({
   orderStatus: {
     type: String,
     enum: [
-      'Pending',
-      'Confirmed',
-      'Shipped',
-      'Nearest',
-      'Delivered',
-      'Cancelled',
-      'Returned',
-      'Failed'
+      'pending',
+      'confirmed',
+      'processing',
+      'shipped',
+      'delivered',
+      'cancelled',
+      'returned',
+      'failed'
     ],
     default: 'Pending',
     required: true

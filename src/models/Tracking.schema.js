@@ -5,19 +5,22 @@ const TrackingSchema = new Schema({
   order: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
   status: {
     type: String, enum: [
-      'Pending',
-      'Confirmed',
-      'Shipped',
-      'Nearest',
-      'Delivered',
-      'Cancelled',
-      'Returned',
-      'Failed'
+      'pending',
+      'confirmed',
+      'shipped',
+      'processing',
+      'nearest-Store',
+      'in-your-area',
+      'at-doorstep',
+      'delivered',
+      'cancelled',
+      'returned',
+      'failed'
     ],
     required: true
   },
-  updatedAt: { type: Date, default: Date.now },
   note: { type: String },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 const Tracking = mongoose.model("Tracking", TrackingSchema);
