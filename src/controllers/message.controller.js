@@ -2,6 +2,13 @@ import Conversation from '../models/Conversation.schema.js';
 import Message from '../models/Message.schema.js';
 import User from '../models/Users.schema.js';
 
+// Socket.IO instance (will be set from server.js)
+let io;
+
+export const setSocketIO = (socketIO) => {
+  io = socketIO;
+};
+
 // Get all conversations for the current user
 const getConversations = async (req, res) => {
   try {
@@ -135,6 +142,18 @@ const sendMessage = async (req, res) => {
 
     // Populate sender info for response
     await message.populate('sender', 'name email role avatar');
+
+    // Emit socket event for real-time messaging
+    if (io) {
+      const otherParticipant = conversation.participants.find(
+        p => p.toString() !== senderId.toString()
+      );
+      
+      io.to(`user_${otherParticipant}`).emit('receive_message', {
+        message: message,
+        conversationId: conversationId
+      });
+    }
 
     res.status(201).json({
       success: true,
