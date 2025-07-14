@@ -1,13 +1,25 @@
 import express from 'express';
 const router = express.Router();
 import Bidding from '../models/Bidding.schema.js';
+import { verifySeller } from '../middleware/seller.middleware.js';
 
 // Create new bidding
-router.post('/create', async (req, res) => {
+router.post('/', verifySeller, async (req, res) => {
     try {
-        const newBid = new Bidding(req.body);
+        const user_id = req.user.userId;
+        const newBid = new Bidding({ ...req.body, createdBy: user_id });
         const savedBid = await newBid.save();
         res.json(savedBid);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/seller', verifySeller, async (req, res) => {
+    try {
+        const user_id = req.user.userId;
+        const biddings = await Bidding.find({ createdBy: user_id });
+        res.json(biddings);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -31,14 +43,19 @@ router.get('/active', async (req, res) => {
 // Get single bid
 router.get('/:id', async (req, res) => {
     try {
-        const bid = await Bidding.findById(req.params.id);
+        const bid = await Bidding.findById(req.params.id).populate('bids.user');
         if (!bid) return res.status(404).json({ error: 'Not found' });
-        const highestBid = bid.bids.length ? Math.max(...bid.bids.map(b => b.amount)) : bid.startingPrice;
+
+        const highestBid = bid.bids.length
+            ? Math.max(...bid.bids.map(b => b.amount))
+            : bid.startingPrice;
+
         res.json({ ...bid._doc, highestBid });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
 
 // Place a bid
 router.post('/:id/bid', async (req, res) => {
